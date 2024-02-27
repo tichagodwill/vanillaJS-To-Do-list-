@@ -36,6 +36,32 @@ async function post_todos() {
   }
 }
 
+
+async function edit_Todo(todoElem, updatedTitle) {
+  try {
+    const edit_url = url + "/" + todoElem.id;
+    const options = {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: updatedTitle,
+        completed: todoElem.completed,
+      }),
+    };
+    const response = await fetch(edit_url, options);
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    return err;
+  }
+}
+
+
+
+
+
 async function del_Todo(todoElem) {
   try {
     const del_url = url + "/" + todoElem.id;
@@ -79,8 +105,40 @@ function display_Todo(todoArr) {
     editBtn.className = "fas fa-edit";
     fontAwesomeSpan.appendChild(editBtn);
     editBtn.addEventListener("click", function () {
-      e.preventDefault();
-    });
+      let editInput = document.createElement("input");
+      editInput.classList.add("edit-input");
+      editInput.value = todoElem.title;
+      todoItem.appendChild(editInput);
+  
+      // Remove the text paragraph
+      paragraph.style.display = "none";
+  
+      // Change the edit icon to a save icon
+      editBtn.classList.remove("fa-edit");
+      editBtn.classList.add("fa-save");
+  
+      // Change event listener to handle save
+      editBtn.removeEventListener("click", this);
+      editBtn.addEventListener("click", async function () {
+          // Update todoElem's title
+          todoElem.title = editInput.value;
+          
+          // Update on the server
+          await edit_Todo(todoElem, editInput.value);
+  
+          // Update UI
+          paragraph.textContent = editInput.value;
+          paragraph.style.display = "block";
+          
+          // Change back the icon to edit
+          editBtn.classList.remove("fa-save");
+          editBtn.classList.add("fa-edit");
+          editInput.remove();
+        });
+  });
+
+  
+
     //  delete button
     let deleteBtn = document.createElement("i");
     deleteBtn.className = "fas fa-trash";
@@ -106,6 +164,8 @@ addBtn.addEventListener("click", async function () {
     inputTodo.value = "";
   }
 });
+
+
 
 getTodos()
   .then((dataArr) => {
