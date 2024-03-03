@@ -1,10 +1,9 @@
 let addBtn = document.querySelector(".add-btn");
-let editBtn = document.querySelector(".edit-btn");
 let inputTodo = document.querySelector(".input-field");
 let todoList = document.querySelector(".task-list");
-
-arr = [];
-url = "http://localhost:3000/todos";
+let arr = [];
+let url = "http://localhost:3000/todos";
+let editInput;
 
 async function getTodos() {
   try {
@@ -36,7 +35,6 @@ async function post_todos() {
   }
 }
 
-
 async function edit_Todo(todoElem, updatedTitle) {
   try {
     const edit_url = url + "/" + todoElem.id;
@@ -57,10 +55,6 @@ async function edit_Todo(todoElem, updatedTitle) {
     return err;
   }
 }
-
-
-
-
 
 async function del_Todo(todoElem) {
   try {
@@ -88,12 +82,11 @@ function display_Todo(todoArr) {
   todoList.classList.add("task-list");
   todoArr.forEach((todoElem) => {
     console.log(todoElem);
-    //parents
 
     // grand childrens
     let todoItem = document.createElement("li");
     todoItem.classList.add("todo-item");
-    let paragraph = document.createElement("p");
+    let paragraph = document.createElement("p"); 
     paragraph.textContent = todoElem.title;
     todoItem.appendChild(paragraph);
     let fontAwesomeSpan = document.createElement("span");
@@ -104,42 +97,16 @@ function display_Todo(todoArr) {
     let editBtn = document.createElement("i");
     editBtn.className = "fas fa-edit";
     fontAwesomeSpan.appendChild(editBtn);
-    editBtn.addEventListener("click", function () {
-      let editInput = document.createElement("input");
+    editBtn.addEventListener("click", async function () {
+      editInput = document.createElement("input");
       editInput.classList.add("edit-input");
       editInput.value = todoElem.title;
-      todoItem.appendChild(editInput);
-  
-      // Remove the text paragraph
-      paragraph.style.display = "none";
-  
-      // Change the edit icon to a save icon
+      todoItem.replaceChild(editInput, paragraph);
       editBtn.classList.remove("fa-edit");
       editBtn.classList.add("fa-save");
-  
-      // Change event listener to handle save
-      editBtn.removeEventListener("click", this);
-      editBtn.addEventListener("click", async function () {
-          // Update todoElem's title
-          todoElem.title = editInput.value;
-          
-          // Update on the server
-          await edit_Todo(todoElem, editInput.value);
-  
-          // Update UI
-          paragraph.textContent = editInput.value;
-          paragraph.style.display = "block";
-          
-          // Change back the icon to edit
-          editBtn.classList.remove("fa-save");
-          editBtn.classList.add("fa-edit");
-          editInput.remove();
-        });
-  });
+    });
 
-  
-
-    //  delete button
+    // delete button
     let deleteBtn = document.createElement("i");
     deleteBtn.className = "fas fa-trash";
     fontAwesomeSpan.appendChild(deleteBtn);
@@ -149,12 +116,16 @@ function display_Todo(todoArr) {
     });
 
     //appending children to parents
-
     todoList.appendChild(todoItem);
-    todo.appendChild(todoList);
-    document.body.appendChild(todo);
   });
+
+  // appending todoList to todo
+  todo.appendChild(todoList);
+
+  // appending todo to the body
+  document.body.appendChild(todo);
 }
+
 //adding event listener to the add button
 addBtn.addEventListener("click", async function () {
   if (inputTodo.value != "") {
@@ -164,8 +135,6 @@ addBtn.addEventListener("click", async function () {
     inputTodo.value = "";
   }
 });
-
-
 
 getTodos()
   .then((dataArr) => {
